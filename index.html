@@ -247,10 +247,7 @@
                     deathAnimation(delta);
                     return;
                 }
-                
-                var origin = new THREE.Vector3(0,350,-100);
-                
-                var outOfChannel = false;
+               
                     
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
@@ -266,19 +263,14 @@
                         dead = true;
                         console.log("HIT");
                     }
-                    
-                    normVertex.multiplyScalar(vertex.length());
-                    normVertex.add(ufo.position);
-                    normVertex.sub(origin);
-                    
-                    if(normVertex.length() > 400)
-                        outOfChannel = true; 
                 }
             
+                var axis = new THREE.Vector3(0,350,-100);
+                axis.sub(ufo.position);
             
-                if(outOfChannel) {
-                    var axis = origin.clone();
-                    axis.sub(ufo.position);
+                if(Math.abs(axis.x) > 400 || Math.abs(axis.y) > 400) {
+                
+                    ufo.worldToLocal(axis);
                     axis.normalize();
                     
                     ufo.translateOnAxis(axis,controls.movementSpeed*delta);            
@@ -324,7 +316,7 @@
                 var result;
                 var combined = new THREE.Geometry();
                 
-                for(var i = 0; i < 5; i++) {               
+                for(var i = 0; i < 8; i++) {               
                     var cubeGeo = new THREE.BoxGeometry(160,160,50);
                     var cubeMesh = new THREE.Mesh(cubeGeo, material);
                     cubeMesh.position.x = (Math.floor(Math.random() * 5) - 2)*160;
