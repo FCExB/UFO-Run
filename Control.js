@@ -1,6 +1,8 @@
-Control = function (object, domElement) {
+Control = function (object, callback, domElement) {
 
     this.object = object;
+    
+    this.callback = callback;
 
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 	if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
@@ -49,6 +51,8 @@ Control = function (object, domElement) {
 
 	this.keyup = function( event ) {
 
+        this.callback();
+    
 		switch( event.keyCode ) {
 
 			case 87: /*W*/ this.moveState.up = 0; break;

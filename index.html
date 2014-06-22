@@ -56,6 +56,9 @@
             var ob;
             
             var dead = false;
+            var menu = false;
+            
+            var ufoOrigin = new THREE.Vector3(0,350,-100);
             
             var material = new THREE.MeshPhongMaterial({
                     color: 0xffffff,
@@ -100,12 +103,28 @@
                 
                 // add model
                 ufo = initModel();
-                ufo.position.set(0,350,-100);
+                ufo.position = ufoOrigin.clone();
                 
                 scene.add(ufo);
                 
                 //Controls
-                controls = new Control( ufo );
+                controls = new Control( ufo , function() {
+                                                            if(menu) {
+                                                            
+                                                            ufo.position = ufoOrigin.clone();
+                                                            var lookat = ufoOrigin.clone();
+                                                            lookat.z = -100;
+                                                            ufo.lookAt(lookat);
+                                                            
+                                                            scene.remove(ob);
+                                                            ob = generateOb();
+                                                            scene.add(ob);
+                                                            ob.position.set(0,400,-3500);
+                                                            
+                                                            dead = false;
+                                                            menu = false;
+                                                            }
+                                                        });
                 controls.movementSpeed = 0.5;
                 controls.rollSpeed = 0.0018;
                 
@@ -121,6 +140,8 @@
                 scene.add(ob);
                 
                 ob.position.set(0,400,-3500);
+                
+                // menu
             }
             
             function initScene() {
@@ -265,7 +286,7 @@
                     }
                 }
             
-                var axis = new THREE.Vector3(0,350,-100);
+                var axis = ufoOrigin.clone();
                 axis.sub(ufo.position);
             
                 if(Math.abs(axis.x) > 400 || Math.abs(axis.y) > 400) {
@@ -309,6 +330,30 @@
                 ufo.quaternion.multiply( q );
                 
                 camera.lookAt(ufo.position);
+                
+                if(ufo.position.y < -100) {
+                    
+                    var text2 = document.createElement('div');
+                    text2.style.position = 'absolute';
+                    //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
+                    text2.style.width = 100;
+                    text2.style.height = 10;
+                    text2.innerHTML = "Press Any Key To Restart";
+                    text2.style.top = 200 + 'px';
+                    text2.style.left = 200 + 'px';
+                    document.body.appendChild(text2);
+                    
+                    menu = true;
+                    
+                    
+                    /*var textGeo = new THREE.TextGeometry("Press Any Key To Restart", {
+                        size: 24
+                    });
+                    textMesh = new THREE.Mesh(textGeo,material);
+                    textMesh.position.z = -100;
+                    
+                    camera.add(textMesh);*/
+                }
             }
             
             function generateOb() {
