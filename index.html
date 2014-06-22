@@ -44,11 +44,26 @@
 		<script>
         
             var lastTime = (new Date()).getTime();
+            
+            var speed = 1.2;
+            var acceleration = 0.000035;
         
             var scene, renderer, camera;
             var stats;
             var controls;
             var ufo, ground, nextGround;
+            
+            var ob;
+            
+            var material = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular: 0xffffff, 
+                    shininess: 20,
+                    //morphTargets: true, 
+                    //morphNormals: true,
+                    vertexColors: THREE.FaceColors,
+                    shading: THREE.FlatShading 
+                });
            
             init();
             run();
@@ -68,29 +83,37 @@
                 renderer.gammaInput = true;
                 renderer.gammaOutput = true;
                 renderer.shadowMapEnabled = true;
-                //renderer.shadowMapCullFace = THREE.CullFaceBack;
+                renderer.shadowMapCullFace = THREE.CullFaceBack;
                 
                 // camera
                 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-                camera.position.y = 300;
+                camera.position.y = 450;
                 camera.position.z = 800;
                 scene.add(camera);
                 
                 // add model
                 ufo = initModel();
-                ufo.position.set(0,300,0);
+                ufo.position.set(0,350,0);
                 
                 scene.add(ufo);
                 
                 //Controls
                 controls = new Control( ufo );
-                controls.movementSpeed = 0.3;
+                controls.movementSpeed = 0.5;
+                controls.rollSpeed = 0.0018;
                 
                 initScene();
                 
                 // stats
                 stats = new Stats();
                 document.body.appendChild(stats.domElement);
+                
+                //obsticle
+                
+                ob = generateOb();
+                scene.add(ob);
+                
+                ob.position.set(0,400,-3500);
             }
             
             function initScene() {
@@ -99,9 +122,10 @@
                 // directional lighting
                 var dirLight = new THREE.DirectionalLight( 0xffffff, 1);
                 dirLight.color.setHSL( 0.1, 1, 0.95 );
-                dirLight.position.set( 800, 500, 0 );
+                dirLight.position.set( 1200, 800, 0 );
                 dirLight.castShadow = true;
-                dirLight.shadowCameraFar = 3500;
+                dirLight.shadowCameraFar = 3000;
+                dirLight.shadowCameraTop = 800;
                 dirLight.shadowBias = -0.0001;
                 dirLight.shadowDarkness = 0.35;
                 //dirLight.shadowCameraVisible = true;
@@ -189,15 +213,6 @@
                 THREE.GeometryUtils.merge(combined, wingMesh);
                 THREE.GeometryUtils.merge(combined, coreMesh);
 
-                var material = new THREE.MeshPhongMaterial({
-                    color: 0xffffff,
-                    specular: 0xffffff, 
-                    shininess: 20,
-                    //morphTargets: true, 
-                    //morphNormals: true,
-                    vertexColors: THREE.FaceColors,
-                    shading: THREE.FlatShading 
-                });
                 var mesh = new THREE.Mesh(combined, material);
                 mesh.overdraw = true;
                 mesh.castShadow = true;
@@ -231,8 +246,35 @@
                     nextGround.position.z = -6500;
                 }
                 
-                ground.position.z += delta * 0.5;
-                nextGround.position.z += delta * 0.5;
+                if(ob.position.z > 800) {
+                    scene.remove(ob);
+                    ob = generateOb();
+                    scene.add(ob);
+                    ob.position.set(0,400,-3500);
+                }
+                
+                ground.position.z += delta * speed;
+                nextGround.position.z += delta * speed;
+                ob.position.z += delta * speed;
+                
+                speed += acceleration * delta;
+            }
+            
+            function generateOb() {
+                
+                var combined = new THREE.Geometry();
+                
+                for(var i = 0; i < 5; i++) {               
+                    var cubeGeo = new THREE.BoxGeometry(160,160,160);
+                    var cubeMesh = new THREE.Mesh(cubeGeo, material);
+                    cubeMesh.position.x = (Math.floor(Math.random() * 5) - 2)*160;
+                    cubeMesh.position.y = (Math.floor(Math.random() * 5) - 2)*160;
+                    
+                    THREE.GeometryUtils.merge(combined, cubeMesh);
+                    
+                }
+                
+                return new THREE.Mesh(combined, material);
             }
             
 		</script>
