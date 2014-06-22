@@ -94,13 +94,13 @@
                 
                 // camera
                 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-                camera.position.y = 450;
+                camera.position.y = 500;
                 camera.position.z = 800;
                 scene.add(camera);
                 
                 // add model
                 ufo = initModel();
-                ufo.position.set(0,350,0);
+                ufo.position.set(0,350,-100);
                 
                 scene.add(ufo);
                 
@@ -243,8 +243,14 @@
             
             function update(delta) {
             
-                if(dead)
+                if(dead) {
+                    deathAnimation(delta);
                     return;
+                }
+                
+                var origin = new THREE.Vector3(0,350,-100);
+                
+                var outOfChannel = false;
                     
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
@@ -254,27 +260,32 @@
                     
                     var raycaster = new THREE.Raycaster(ufo.position, normVertex, 0, vertex.length());
 
-                    var collisions = raycaster.intersectObject(ob, true);
-                    if ( collisions.length > 0 && ob.position.length() < 1000) 
+                    var collisions = raycaster.intersectObject(ob);
+                    if ( collisions.length > 0 && ob.position.length() < 3499) 
                     {
                         dead = true;
                         console.log("HIT");
-                        
-                        var geo = new THREE.Geometry();
-                        geo.vertices.push(ufo.position);
-                        geo.vertices.push(collisions[0].point);
-                        
-                        var m = new THREE.LineBasicMaterial({
-                            color: 0x0000ff
-                        });
-                        
-                        var line = new THREE.Line(geo, m);
-                        scene.add(line);
-                       
                     }
+                    
+                    normVertex.multiplyScalar(vertex.length());
+                    normVertex.add(ufo.position);
+                    normVertex.sub(origin);
+                    
+                    if(normVertex.length() > 400)
+                        outOfChannel = true; 
                 }
             
+            
+                if(outOfChannel) {
+                    var axis = origin.clone();
+                    axis.sub(ufo.position);
+                    axis.normalize();
+                    
+                    ufo.translateOnAxis(axis,controls.movementSpeed*delta);            
+                } 
+                
                 controls.update( delta);
+                
                 camera.lookAt(ufo.position);
                 
                 if(ground.position.z > 3500) {
@@ -296,6 +307,16 @@
                 ob.position.z += delta * speed;
                 
                 speed += acceleration * delta;
+            }
+            
+            function deathAnimation(delta) {
+                ufo.position.y -= controls.movementSpeed * delta;
+                
+                var q = new THREE.Quaternion( delta*controls.rollSpeed, 0, -delta*controls.rollSpeed, 1 );
+                q.normalize();
+                ufo.quaternion.multiply( q );
+                
+                camera.lookAt(ufo.position);
             }
             
             function generateOb() {
