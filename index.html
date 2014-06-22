@@ -55,6 +55,8 @@
             
             var ob;
             
+            var dead = false;
+            
             var material = new THREE.MeshPhongMaterial({
                     color: 0xffffff,
                     specular: 0xffffff, 
@@ -64,11 +66,16 @@
                     vertexColors: THREE.FaceColors,
                     shading: THREE.FlatShading 
                 });
+                
+                
+            var ufoMaterial = material;
            
             init();
             run();
             
             function init() {
+            
+                dead = false;
             
                 // scene
                 scene = new THREE.Scene();
@@ -213,8 +220,7 @@
                 THREE.GeometryUtils.merge(combined, wingMesh);
                 THREE.GeometryUtils.merge(combined, coreMesh);
 
-                var mesh = new THREE.Mesh(combined, material);
-                mesh.overdraw = true;
+                var mesh = new THREE.Mesh(combined, ufoMaterial);
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
                 
@@ -236,6 +242,38 @@
             }
             
             function update(delta) {
+            
+                if(dead)
+                    return;
+                    
+                for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
+                {          
+                    var vertex = ufo.geometry.vertices[vertexIndex].clone();
+                    var normVertex = vertex.clone();
+                    normVertex.transformDirection(ufo.matrix);
+                    
+                    var raycaster = new THREE.Raycaster(ufo.position, normVertex, 0, vertex.length());
+
+                    var collisions = raycaster.intersectObject(ob, true);
+                    if ( collisions.length > 0 && ob.position.length() < 1000) 
+                    {
+                        dead = true;
+                        console.log("HIT");
+                        
+                        var geo = new THREE.Geometry();
+                        geo.vertices.push(ufo.position);
+                        geo.vertices.push(collisions[0].point);
+                        
+                        var m = new THREE.LineBasicMaterial({
+                            color: 0x0000ff
+                        });
+                        
+                        var line = new THREE.Line(geo, m);
+                        scene.add(line);
+                       
+                    }
+                }
+            
                 controls.update( delta);
                 camera.lookAt(ufo.position);
                 
@@ -249,8 +287,8 @@
                 if(ob.position.z > 800) {
                     scene.remove(ob);
                     ob = generateOb();
-                    scene.add(ob);
                     ob.position.set(0,400,-3500);
+                    scene.add(ob);
                 }
                 
                 ground.position.z += delta * speed;
@@ -262,10 +300,11 @@
             
             function generateOb() {
                 
+                var result;
                 var combined = new THREE.Geometry();
                 
                 for(var i = 0; i < 5; i++) {               
-                    var cubeGeo = new THREE.BoxGeometry(160,160,160);
+                    var cubeGeo = new THREE.BoxGeometry(160,160,50);
                     var cubeMesh = new THREE.Mesh(cubeGeo, material);
                     cubeMesh.position.x = (Math.floor(Math.random() * 5) - 2)*160;
                     cubeMesh.position.y = (Math.floor(Math.random() * 5) - 2)*160;
@@ -275,6 +314,19 @@
                 }
                 
                 return new THREE.Mesh(combined, material);
+            }
+            
+            function drawRayStuff() {
+                var geo = new THREE.Geometry();
+                geo.vertices.push(ufo.position);
+                geo.vertices.push(collisions[0].point);
+                
+                var m = new THREE.LineBasicMaterial({
+                    color: 0x0000ff
+                });
+                
+                var line = new THREE.Line(geo, m);
+                scene.add(line);
             }
             
 		</script>
