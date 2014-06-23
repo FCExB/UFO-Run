@@ -45,7 +45,8 @@
         
             var lastTime = (new Date()).getTime();
             
-            var speed = 1.2;
+            var startSpeed = 1.2;
+            var speed = startSpeed;
             var acceleration = 0.000035;
         
             var scene, renderer, camera;
@@ -58,7 +59,9 @@
             var dead = false;
             var menu = false;
             
-            var ufoOrigin = new THREE.Vector3(0,350,-100);
+            var text2;
+            
+            var ufoOrigin = new THREE.Vector3(0,450,-100);
             
             var material = new THREE.MeshPhongMaterial({
                     color: 0xffffff,
@@ -97,7 +100,7 @@
                 
                 // camera
                 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-                camera.position.y = 500;
+                camera.position.y = 600;
                 camera.position.z = 800;
                 scene.add(camera);
                 
@@ -121,6 +124,10 @@
                                                             scene.add(ob);
                                                             ob.position.set(0,400,-3500);
                                                             
+                                                            speed = startSpeed;
+                                                            
+                                                            document.body.removeChild(text2);
+                                                            
                                                             dead = false;
                                                             menu = false;
                                                             }
@@ -139,7 +146,7 @@
                 ob = generateOb();
                 scene.add(ob);
                 
-                ob.position.set(0,400,-3500);
+                ob.position.set(0,500,-3500);
                 
                 // menu
             }
@@ -168,14 +175,8 @@
                 
                 scene.add( hemiLight );
                 
-                ground = newGround();
-                ground.position.z = -2500;
-                scene.add(ground);
-                
-                nextGround = newGround();
-                nextGround.position.z = -7500;
-                scene.add(nextGround);
-                
+                initGrounds();
+
                 //SKYDOME 
                 var vertexShader = document.getElementById( 'vertexShader' ).textContent;
                 var fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
@@ -196,13 +197,13 @@
                 scene.add(sky);  
             }
             
-            function newGround() {
+            function initGrounds() {
                 //GROUND
-                var groundGeo = new THREE.PlaneGeometry( 4500, 5000, 50, 60);
+                var groundGeo = new THREE.PlaneGeometry( 6000, 5000, 50, 50);
                 
                 var index = 0;
                 for(var i = 0; i < 50; i++) {
-                    for(var j = 0; j < 60; j++) {
+                    for(var j = 0; j < 50; j++) {
                         groundGeo.vertices[index].z = (Math.random()-0.5) * 100;
                         index++;
                     }
@@ -216,13 +217,16 @@
                 } );
                 groundMat.color.setHSL( 0.095, 1, 0.75 );
 
-                var g = new THREE.Mesh( groundGeo, groundMat );
-                g.rotation.x = -Math.PI/2;
-                g.position.y = -50;
+                ground = new THREE.Mesh( groundGeo, groundMat );
+                ground.rotation.x = -Math.PI/2;
+                ground.position.y = -50;
+                ground.receiveShadow = true;
+                ground.position.z = -2500;
+                scene.add(ground);
                 
-                g.receiveShadow = true;
-                
-                return g;
+                nextGround = ground.clone();
+                nextGround.position.z = -6500;
+                scene.add(nextGround);
             }
             
             function initModel() {
@@ -254,7 +258,7 @@
                 var timeDiff = time - lastTime;
                 lastTime = time;
                
-         
+                //console.log(ufo.position);
                 update(timeDiff);
                 stats.update();
                 renderer.render(scene, camera);
@@ -285,11 +289,14 @@
                         console.log("HIT");
                     }
                 }
+                
+                controls.update( delta);
+            
             
                 var axis = ufoOrigin.clone();
                 axis.sub(ufo.position);
             
-                if(Math.abs(axis.x) > 400 || Math.abs(axis.y) > 400) {
+                if(Math.abs(axis.x) > 350 || Math.abs(axis.y) > 350) {
                 
                     ufo.worldToLocal(axis);
                     axis.normalize();
@@ -297,21 +304,20 @@
                     ufo.translateOnAxis(axis,controls.movementSpeed*delta);            
                 } 
                 
-                controls.update( delta);
                 
                 camera.lookAt(ufo.position);
                 
-                if(ground.position.z > 3500) {
+                if(ground.position.z > 2500) {
                     var temp = ground;
                     ground = nextGround;
                     nextGround = temp;
-                    nextGround.position.z = -6500;
+                    nextGround.position.z = -5500;
                 }
                 
                 if(ob.position.z > 800) {
                     scene.remove(ob);
                     ob = generateOb();
-                    ob.position.set(0,400,-3500);
+                    ob.position.set(0,500,-3500);
                     scene.add(ob);
                 }
                 
@@ -331,11 +337,10 @@
                 
                 camera.lookAt(ufo.position);
                 
-                if(ufo.position.y < -100) {
+                if(!menu && ufo.position.y < -100) {
                     
-                    var text2 = document.createElement('div');
+                    text2 = document.createElement('div');
                     text2.style.position = 'absolute';
-                    //text2.style.zIndex = 1;    // if you still don't see the label, try uncommenting this
                     text2.style.width = 100;
                     text2.style.height = 10;
                     text2.innerHTML = "Press Any Key To Restart";

@@ -88,11 +88,9 @@ Control = function (object, callback, domElement) {
 
 	this.updateMovementVector = function() {
 
-		//var forward = ( this.moveState.forward || ( this.autoForward && !this.moveState.back ) ) ? 1 : 0;
-
 		this.moveVector.x = ( -this.moveState.left    + this.moveState.right );
 		this.moveVector.y = ( -this.moveState.down    + this.moveState.up );
-		//this.moveVector.z = ( -forward + this.moveState.back );
+        this.moveVector.z = 0;
 
 		//console.log( 'move:', [ this.moveVector.x, this.moveVector.y, this.moveVector.z ] );
         
@@ -103,8 +101,6 @@ Control = function (object, callback, domElement) {
     
     this.updateRotationVector = function() {
 
-		//this.rotationVector.x = ( -this.moveState.pitchDown + this.moveState.pitchUp );
-		//this.rotationVector.y = ( -this.moveState.yawRight  + this.moveState.yawLeft );
 		this.rotationVector.z = ( -this.moveState.rollRight + this.moveState.rollLeft );
 
 		//console.log( 'rotate:', [ this.rotationVector.x, this.rotationVector.y, this.rotationVector.z ] );
