@@ -3,9 +3,7 @@ JuicyCamera = function (camera, target) {
     this.camera = camera;
     this.target = target;
     
-    this.movementSpeed = 0.00000018;
-    
-    this.currentSpeed = 0;
+    this.movementSpeed = 0.000001;
     
     this.currentFacingVector = target.position.clone();
     

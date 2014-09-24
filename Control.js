@@ -23,7 +23,8 @@ Control = function (object, callback, domElement) {
     this.rotationVector = new THREE.Vector3( 0, 0, 0 );
 
     this.keydown = function( event ) {
-
+        event.preventDefault();
+    
 		if ( event.altKey ) {
 
 			return;
@@ -35,13 +36,19 @@ Control = function (object, callback, domElement) {
 		switch ( event.keyCode ) {
 
 			case 87: /*W*/ this.moveState.up = 1; break;
+            case 38: /*Up*/ this.moveState.up = 1; break;
 			case 83: /*S*/ this.moveState.down = 1; break;
+            case 40: /*Down*/ this.moveState.down = 1; break;
 
 			case 65: /*A*/ this.moveState.left = 1; break;
+            case 37: /*Left*/ this.moveState.left = 1; break;
 			case 68: /*D*/ this.moveState.right = 1; break;
+            case 39: /*Right*/ this.moveState.right = 1; break;
             
             case 81: /*Q*/ this.moveState.rollLeft = 1; break;
+            case 90: /*Z*/ this.moveState.rollLeft = 1; break;
 			case 69: /*E*/ this.moveState.rollRight = 1; break;
+            case 88: /*X*/ this.moveState.rollRight = 1; break;
 
 		}
 
@@ -55,14 +62,20 @@ Control = function (object, callback, domElement) {
     
 		switch( event.keyCode ) {
 
-			case 87: /*W*/ this.moveState.up = 0; break;
+            case 87: /*W*/ this.moveState.up = 0; break;
+            case 38: /*Up*/ this.moveState.up = 0; break;
 			case 83: /*S*/ this.moveState.down = 0; break;
+            case 40: /*Down*/ this.moveState.down = 0; break;
 
 			case 65: /*A*/ this.moveState.left = 0; break;
+            case 37: /*Left*/ this.moveState.left = 0; break;
 			case 68: /*D*/ this.moveState.right = 0; break;
+            case 39: /*Right*/ this.moveState.right = 0; break;
             
             case 81: /*Q*/ this.moveState.rollLeft = 0; break;
+            case 90: /*Z*/ this.moveState.rollLeft = 0; break;
 			case 69: /*E*/ this.moveState.rollRight = 0; break;
+            case 88: /*X*/ this.moveState.rollRight = 0; break;
 
 		}
 

@@ -8,6 +8,7 @@
         <script src="Control.js"></script>
         <script src="JuicyCamera.js"></script>
         <script src="three.js\examples\js\libs\stats.min.js"></script>
+        <script src="three.js/examples/fonts/helvetiker_regular.typeface.js"></script>
         
         <script type="x-shader/x-vertex" id="vertexShader">
 
@@ -60,6 +61,8 @@
             var dead = false;
             var menu = true;
             
+            var score = 0;
+            
             var text = document.createElement('div');
             text.style.position = 'absolute';
             text.style.width = 100;
@@ -83,6 +86,19 @@
                 
                 
             var ufoMaterial = material;
+            
+            var textParams = {
+					size: 20,
+					height: 5,
+					curveSegments: 2,
+					font: "helvetiker"
+
+				};
+                
+            var text3d;
+            
+            var width = 848; 
+            var height = 480;
            
             init();
             run();
@@ -98,7 +114,7 @@
              
                 // renderer
                 renderer = new THREE.WebGLRenderer( { antialias: true } );
-                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setSize(width, height);
                 document.body.appendChild(renderer.domElement);
                 renderer.setClearColor( scene.fog.color, 1 );
                 renderer.gammaInput = true;
@@ -114,10 +130,21 @@
                 document.body.appendChild(stats.domElement);
                 
                 // camera
-                var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
+                var camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
                 camera.position.y = 600;
-                camera.position.z = 800;
+                camera.position.z = 850;
                 scene.add(camera);
+                
+                var text3dGeo = new THREE.TextGeometry( "0", textParams);
+                
+                text3d = new THREE.Mesh(text3dGeo, material);
+                
+                text3d.position.y = height/2 - 70;
+                text3d.position.x = width/2 - 120;
+                
+                text3d.position.z = -500;
+                
+                camera.add(text3d);
                 
                 // add model
                 ufo = initModel();
@@ -131,6 +158,8 @@
                 //Controls
                 controls = new Control( ufo , function() {
                                                             if(menu) {
+                                                            
+                                                            score = 0;
                                                             
                                                             ufo.position = ufoOrigin.clone();
                                                             var lookat = ufoOrigin.clone();
@@ -160,11 +189,13 @@
                 //obsticle
                 
                 ob = generateOb();
+                
                 scene.add(ob);
                 
                 ob.position.set(0,500,-3500);
                 
                 // menu
+                
             }
             
             function initScene() {
@@ -296,6 +327,7 @@
                     return;
                 }
                
+                score += delta / 100;
                     
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
@@ -327,7 +359,6 @@
                 } 
                 
                 
-                
                 if(ground.position.z > 2500) {
                     var temp = ground;
                     ground = nextGround;
@@ -347,6 +378,19 @@
                 ob.position.z += delta * speed;
                 
                 speed += acceleration * delta;
+                
+                var newTextGeo = new THREE.TextGeometry( Math.floor(score), textParams);
+                ob.remove(text3d);
+                
+                var pos = text3d.position;
+                
+                juicyCamera.camera.remove(text3d);
+                text3d.geometry.dispose();
+                
+                text3d = new THREE.Mesh( newTextGeo, ufoMaterial);
+                text3d.position = pos;
+                
+                juicyCamera.camera.add(text3d);
             }
             
             function deathAnimation(delta) {
@@ -377,7 +421,9 @@
                     
                 }
                 
-                return new THREE.Mesh(combined, material);
+                var result = new THREE.Mesh(combined, material);
+                
+                return result;
             }
             
             function drawRayStuff() {
