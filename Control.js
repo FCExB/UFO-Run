@@ -1,9 +1,12 @@
-Control = function (object, callback, domElement) {
+Control = function (object, spaceCallback, moveCallback, rotateCallback, domElement) {
 
     this.object = object;
     
-    this.callback = callback;
-
+    this.spaceCallback = spaceCallback;
+    this.moveCallback = moveCallback;
+    this.rotateCallback = rotateCallback;
+    
+    
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 	if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
     
@@ -23,7 +26,6 @@ Control = function (object, callback, domElement) {
     this.rotationVector = new THREE.Vector3( 0, 0, 0 );
 
     this.keydown = function( event ) {
-        event.preventDefault();
     
 		if ( event.altKey ) {
 
@@ -31,7 +33,7 @@ Control = function (object, callback, domElement) {
 
 		}
 
-		//event.preventDefault();
+		event.preventDefault();
 
 		switch ( event.keyCode ) {
 
@@ -49,16 +51,26 @@ Control = function (object, callback, domElement) {
             case 90: /*Z*/ this.moveState.rollLeft = 1; break;
 			case 69: /*E*/ this.moveState.rollRight = 1; break;
             case 88: /*X*/ this.moveState.rollRight = 1; break;
+            
+            case 32: /*Space*/ this.spaceCallback(); break;
 
 		}
+        
+        if (this.moveState.up || this.moveState.down || this.moveState.left || this.moveState.right)
+        {
+            this.moveCallback();
+        }
+        
+        if (this.moveState.rollLeft || this.moveState.rollRight)
+        {
+            this.rotateCallback();
+        }
 
         this.updateMovementVector();
         this.updateRotationVector();
 	};
 
 	this.keyup = function( event ) {
-
-        this.callback();
     
 		switch( event.keyCode ) {
 

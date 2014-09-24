@@ -2,12 +2,13 @@
 	<head>
 		<title>UFO Run</title>
 	</head>
-	<body>
+	<body style="margin: 0px;">
 		<script src="three.min.js"></script>
         <script src="Control.js"></script>
         <script src="JuicyCamera.js"></script>
         <script src="stats.min.js"></script>
         <script src="helvetiker_regular.typeface.js"></script>
+        <script src="helvetiker_bold.typeface.js"></script>
         
         <script type="x-shader/x-vertex" id="vertexShader">
 
@@ -61,15 +62,7 @@
             var menu = true;
             
             var score = 0;
-            
-            var text = document.createElement('div');
-            text.style.position = 'absolute';
-            text.style.width = 100;
-            text.style.height = 10;
-            text.innerHTML = "Press Any Key To Start";
-            text.style.top = 200 + 'px';
-            text.style.left = 200 + 'px';
-            document.body.appendChild(text);
+            var highScore = 0;
             
             var ufoOrigin = new THREE.Vector3(0,450,-100);
             
@@ -86,24 +79,37 @@
                 
             var ufoMaterial = material;
             
-            var textParams = {
+            var scoreTextParams = {
 					size: 20,
 					height: 5,
 					curveSegments: 2,
 					font: "helvetiker"
-
 				};
+        
+            var titleTextParams = {
+                size: 5,
+                height: 2,
+                curveSegments: 3,
+                font: "helvetiker",
+                weight: "bold"
+            };
                 
-            var text3d;
+            var scoreText;
+            
+            var moved = false;
+            var moveText;
+            var rotated = false;
+            var rotateText;
             
             var width = 848; 
             var height = 480;
+            
+            var title;
            
             init();
             run();
             
             function init() {
-            
                 dead = false;
             
                 // scene
@@ -134,16 +140,16 @@
                 camera.position.z = 850;
                 scene.add(camera);
                 
-                var text3dGeo = new THREE.TextGeometry( "0", textParams);
+                var scoreTextGeo = new THREE.TextGeometry( Math.floor(score), scoreTextParams);
                 
-                text3d = new THREE.Mesh(text3dGeo, material);
+                scoreText = new THREE.Mesh(scoreTextGeo, material);
                 
-                text3d.position.y = height/2 - 70;
-                text3d.position.x = width/2 - 120;
+                scoreText.position.y = height/2 - 70;
+                scoreText.position.x = width/2 - 120;
                 
-                text3d.position.z = -500;
+                scoreText.position.z = -500;
                 
-                camera.add(text3d);
+                camera.add(scoreText);
                 
                 // add model
                 ufo = initModel();
@@ -152,34 +158,91 @@
                 scene.add(ufo);
                 
                 juicyCamera = new JuicyCamera(camera, ufo);
+                
+                var moveGeo = new THREE.TextGeometry("Arrow keys to Move", titleTextParams);
+                
+                moveText = new THREE.Mesh(moveGeo, material);
+                moveText.position.z = -100;
+                moveText.position.x = -32;
+                moveText.position.y = 25;
+                
+                var rotateGeo = new THREE.TextGeometry("Z/X to Rotate", titleTextParams);
+                
+                rotateText = new THREE.Mesh(rotateGeo, material);
+                rotateText.position.z = -100;
+                rotateText.position.x = -38;
+                rotateText.position.y = -25;
               
+                var onSpacePress = function() {
+                                            if(menu) {
+                                                score = 0;
+                                                
+                                                ufo.position = ufoOrigin.clone();
+                                                var lookat = ufoOrigin.clone();
+                                                lookat.z = -100;
+                                                ufo.lookAt(lookat);
+                                                
+                                                scene.remove(ob);
+                                                
+                                                if (!moved)
+                                                {
+                                                    console.log("test");
+                                                    juicyCamera.camera.add(moveText);
+                                                }
+                                                else 
+                                                {            
+                                                    ob = generateOb();
+                                                    scene.add(ob);
+                                                    ob.position.set(0,400,-3500);
+                                                }
+                                                
+                                                speed = startSpeed;
+                                                
+                                                camera.remove(title);
+                                                
+                                                dead = false;
+                                                menu = false;
+                                                
+                                                juicyCamera.reset();
+                                            }
+                                        };
+                                        
+                var onMove = function() { 
+                    if (menu)
+                    {
+                        return;
+                    }
+                    
+                    if (!rotated && !moved)
+                    {
+                        moved = true; 
+                        juicyCamera.camera.remove(moveText); 
+                        console.log("Moved"); 
+                        juicyCamera.camera.add(rotateText);
+                    }
+                    };
+                        
+                    
+                var onRotate = function() {
+                    if (menu || !moved)
+                    {
+                        return;
+                    }
+                    console.log("Rotated");
+                    
+                    if (!rotated)
+                    {
+                        ob = generateOb();
+                        scene.add(ob);
+                        ob.position.set(0,400,-3500);
+                        rotated = true;
+                        juicyCamera.camera.remove(rotateText); 
+                    }
+                    
+                    ;};
                 
                 //Controls
-                controls = new Control( ufo , function() {
-                                                            if(menu) {
-                                                            
-                                                            score = 0;
-                                                            
-                                                            ufo.position = ufoOrigin.clone();
-                                                            var lookat = ufoOrigin.clone();
-                                                            lookat.z = -100;
-                                                            ufo.lookAt(lookat);
-                                                            
-                                                            scene.remove(ob);
-                                                            ob = generateOb();
-                                                            scene.add(ob);
-                                                            ob.position.set(0,400,-3500);
-                                                            
-                                                            speed = startSpeed;
-                                                            
-                                                            document.body.removeChild(text);
-                                                            
-                                                            dead = false;
-                                                            menu = false;
-                                                            
-                                                            juicyCamera.reset();
-                                                            }
-                                                        });
+                controls = new Control( ufo , onSpacePress, onMove, onRotate);
                 controls.movementSpeed = 0.5;
                 controls.rollSpeed = 0.0018;
                 
@@ -195,6 +258,25 @@
                 
                 // menu
                 
+                var titleGeo = new THREE.TextGeometry( "UFO Run", titleTextParams);
+                
+                title = new THREE.Mesh(titleGeo, material);
+                
+                title.position.z = -50;
+                title.position.x = -14;
+                title.position.y = 7;
+                
+                titleGeo = new THREE.TextGeometry( "Press Space", titleTextParams);
+                
+                var pressSpaaceTitle = new THREE.Mesh(titleGeo, material);
+                
+                pressSpaaceTitle.position.z = -100;
+                pressSpaaceTitle.position.x = -5;
+                pressSpaaceTitle.position.y = -47;
+                
+                title.add(pressSpaaceTitle);
+                         
+                camera.add(title);        
             }
             
             function initScene() {
@@ -325,8 +407,6 @@
                     deathAnimation(delta);
                     return;
                 }
-               
-                score += delta / 100;
                     
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
@@ -374,22 +454,26 @@
                 
                 ground.position.z += delta * speed;
                 nextGround.position.z += delta * speed;
-                ob.position.z += delta * speed;
                 
-                speed += acceleration * delta;
+                if (rotated)
+                {
+                    ob.position.z += delta * speed;
+                    score += delta / 100;
+                    speed += acceleration * delta;
+                }
                 
-                var newTextGeo = new THREE.TextGeometry( Math.floor(score), textParams);
-                ob.remove(text3d);
+                var newTextGeo = new THREE.TextGeometry( Math.floor(score), scoreTextParams);
+                ob.remove(scoreText);
                 
-                var pos = text3d.position;
+                var pos = scoreText.position;
                 
-                juicyCamera.camera.remove(text3d);
-                text3d.geometry.dispose();
+                juicyCamera.camera.remove(scoreText);
+                scoreText.geometry.dispose();
                 
-                text3d = new THREE.Mesh( newTextGeo, ufoMaterial);
-                text3d.position = pos;
+                scoreText = new THREE.Mesh( newTextGeo, ufoMaterial);
+                scoreText.position = pos;
                 
-                juicyCamera.camera.add(text3d);
+                juicyCamera.camera.add(scoreText);
             }
             
             function deathAnimation(delta) {
@@ -400,8 +484,8 @@
                 ufo.quaternion.multiply( q );
                 
                 if(!menu && ufo.position.y < -50) {
-                    document.body.appendChild(text);
                     menu = true;
+                    juicyCamera.camera.add(title);
                 }
             }
             
