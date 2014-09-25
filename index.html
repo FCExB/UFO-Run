@@ -3,12 +3,15 @@
 		<title>UFO Run</title>
 	</head>
 	<body style="margin: 0px;">
-		<script src="three.min.js"></script>
+		<script src="libs/three.min.js"></script>
+        <script src="libs/NG.min.js"></script>
+        <script src="libs/stats.min.js"></script>
+        <script src="libs/helvetiker_regular.typeface.js"></script>
+        <script src="libs/helvetiker_bold.typeface.js"></script>
+        
         <script src="Control.js"></script>
         <script src="JuicyCamera.js"></script>
-        <script src="stats.min.js"></script>
-        <script src="helvetiker_regular.typeface.js"></script>
-        <script src="helvetiker_bold.typeface.js"></script>
+        <script src="Scoreboard.js"></script>
         
         <script type="x-shader/x-vertex" id="vertexShader">
 
@@ -62,7 +65,7 @@
             var menu = true;
             
             var score = 0;
-            var highScore = 0;
+            var highscore = 0;
             
             var ufoOrigin = new THREE.Vector3(0,450,-100);
             
@@ -95,6 +98,7 @@
             };
                 
             var scoreText;
+            var deadScoreText;
             
             var moved = false;
             var moveText;
@@ -105,12 +109,17 @@
             var height = 480;
             
             var title;
+            var scoresText;
            
             init();
             run();
             
             function init() {
                 dead = false;
+            
+                var appId = "38567:dcsyAdEE";
+                var encryptionKey = "qWe7dlLZL2kviQqrMwPHaaHIJqBQbmrO";
+                NG.connect(appId, encryptionKey);
             
                 // scene
                 scene = new THREE.Scene();
@@ -198,7 +207,8 @@
                                                 
                                                 speed = startSpeed;
                                                 
-                                                camera.remove(title);
+                                                juicyCamera.camera.remove(title);
+                                                juicyCamera.camera.remove(deadScoreText);
                                                 
                                                 dead = false;
                                                 menu = false;
@@ -236,7 +246,7 @@
                         scene.add(ob);
                         ob.position.set(0,400,-3500);
                         rotated = true;
-                        juicyCamera.camera.remove(rotateText); 
+                        juicyCamera.camera.remove(rotateText);
                     }
                     
                     ;};
@@ -485,7 +495,28 @@
                 
                 if(!menu && ufo.position.y < -50) {
                     menu = true;
+                    
+                    highscore = Math.max(score, highscore);
+                    
+                    var scoreGeo = new THREE.TextGeometry( "Score: " + Math.floor(score), titleTextParams);
+                
+                    deadScoreText = new THREE.Mesh(scoreGeo, material);
+                
+                    deadScoreText.position.z = -100;
+                    deadScoreText.position.x = -65;
+                    deadScoreText.position.y = -15;
+                    
+                    var highscoreGeo = new THREE.TextGeometry( "Highscore: " + Math.floor(highscore), titleTextParams);
+                    
+                    var highscoreText = new THREE.Mesh(highscoreGeo, material);
+                    highscoreText.position.x = 84;
+                    
+                    deadScoreText.add(highscoreText);
+                        
+                    juicyCamera.camera.add(deadScoreText);
+                    
                     juicyCamera.camera.add(title);
+                    NG.postScore("Highscores", Math.floor(score));
                 }
             }
             
