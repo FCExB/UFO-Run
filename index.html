@@ -11,7 +11,6 @@
         
         <script src="Control.js"></script>
         <script src="JuicyCamera.js"></script>
-        <script src="Scoreboard.js"></script>
         
         <script type="x-shader/x-vertex" id="vertexShader">
 
@@ -141,7 +140,7 @@
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.left = '0px';
                 stats.domElement.style.top = '0px';
-                //document.body.appendChild(stats.domElement);
+                document.body.appendChild(stats.domElement);
                 
                 // camera
                 var camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
@@ -195,14 +194,13 @@
                                                 
                                                 if (!moved)
                                                 {
-                                                    console.log("test");
                                                     juicyCamera.camera.add(moveText);
                                                 }
                                                 else 
                                                 {            
                                                     ob = generateOb();
                                                     scene.add(ob);
-                                                    ob.position.set(0,400,-3500);
+                                                    ob.position.set(0,400,-4700);
                                                 }
                                                 
                                                 speed = startSpeed;
@@ -244,7 +242,7 @@
                     {
                         ob = generateOb();
                         scene.add(ob);
-                        ob.position.set(0,400,-3500);
+                        ob.position.set(0,400,-4700);
                         rotated = true;
                         juicyCamera.camera.remove(rotateText);
                     }
@@ -264,7 +262,7 @@
                 
                 scene.add(ob);
                 
-                ob.position.set(0,500,-3500);
+                ob.position.set(0,500,-4700);
                 
                 // menu
                 
@@ -458,7 +456,7 @@
                 if(ob.position.z > 800) {
                     scene.remove(ob);
                     ob = generateOb();
-                    ob.position.set(0,500,-3500);
+                    ob.position.set(0,500,-4700);
                     scene.add(ob);
                 }
                 

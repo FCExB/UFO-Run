@@ -2,6 +2,8 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 
     this.object = object;
     
+    this.targetVector = object.position.clone();
+    
     this.spaceCallback = spaceCallback;
     this.moveCallback = moveCallback;
     this.rotateCallback = rotateCallback;
@@ -10,8 +12,8 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 	if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
     
-    this.movementSpeed = 1.0;
-    this.rollSpeed = 0.001;
+    this.movementSpeed = 0.9;
+    this.rollSpeed = 0.000002;
     
     this.moveState = { 
         up: 0, 
@@ -98,13 +100,31 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
     
     this.update = function( delta ) {
 
+        // Movement
 		var moveMult = delta * this.movementSpeed;
-		var rotMult = delta * this.rollSpeed;
-
+        
         this.object.translateOnAxis(this.moveVector, moveMult);
+        /*
+        this.moveVector.multiplyScalar(moveMult);
+        
+        this.targetVector.add(this.moveVector);
+        
+        this.moveVector.divideScalar(moveMult);
 
+        var diff = new THREE.Vector3(0,0,0);
+        
+        diff.subVectors(this.targetVector, this.object.position);
+        
+        if (diff.lengthSq() > 0.0000001)
+        {
+            this.object.translateOnAxis(diff, diff.length() * delta * 0.00001);
+        }
+        */
+        
+        // Rotations
+        var rotMult = delta * this.rollSpeed;
+        
         var q = new THREE.Quaternion( this.rotationVector.x * rotMult, this.rotationVector.y * rotMult, this.rotationVector.z * rotMult, 1 );
-        q.normalize();
 		this.object.quaternion.multiply( q );
 
 		// expose the rotation vector for convenience
@@ -119,9 +139,10 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 
 		//console.log( 'move:', [ this.moveVector.x, this.moveVector.y, this.moveVector.z ] );
         
-        this.moveVector.normalize();
+        /*this.moveVector.normalize();
         this.moveVector.applyQuaternion(this.object.quaternion.inverse());
         this.object.quaternion.inverse();
+        */
 	};
     
     this.updateRotationVector = function() {
