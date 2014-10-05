@@ -15,6 +15,9 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
     this.movementSpeed = 0.9;
     this.rollSpeed = 0.000002;
     
+    this.newControls = true;
+    
+    
     this.moveState = { 
         up: 0, 
         down: 0, 
@@ -30,33 +33,53 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
     this.keydown = function( event ) {
     
 		if ( event.altKey ) {
-
 			return;
-
 		}
 
 		event.preventDefault();
 
-		switch ( event.keyCode ) {
+        if (this.newControls) {
+            switch ( event.keyCode ) {
 
-			case 87: /*W*/ this.moveState.up = 1; break;
-            case 38: /*Up*/ this.moveState.up = 1; break;
-			case 83: /*S*/ this.moveState.down = 1; break;
-            case 40: /*Down*/ this.moveState.down = 1; break;
+                case 87: /*W*/ this.moveState.up = 1; break;
+                case 38: /*Up*/ this.moveState.up = 1; break;
+                case 83: /*S*/ this.moveState.down = 1; break;
+                case 40: /*Down*/ this.moveState.down = 1; break;
 
-			case 65: /*A*/ this.moveState.left = 1; break;
-            case 37: /*Left*/ this.moveState.left = 1; break;
-			case 68: /*D*/ this.moveState.right = 1; break;
-            case 39: /*Right*/ this.moveState.right = 1; break;
-            
-            case 81: /*Q*/ this.moveState.rollLeft = 1; break;
-            case 90: /*Z*/ this.moveState.rollLeft = 1; break;
-			case 69: /*E*/ this.moveState.rollRight = 1; break;
-            case 88: /*X*/ this.moveState.rollRight = 1; break;
-            
-            case 32: /*Space*/ this.spaceCallback(); break;
+                case 65: /*A*/ this.moveState.left = 1; break;
+                case 37: /*Left*/ this.moveState.rollLeft = 1; break;
+                case 68: /*D*/ this.moveState.right = 1; break;
+                case 39: /*Right*/ this.moveState.rollRight = 1; break;
+                
+                case 81: /*Q*/ this.moveState.rollLeft = 1; break;
+                case 90: /*Z*/ this.moveState.left = 1; break;
+                case 69: /*E*/ this.moveState.rollRight = 1; break;
+                case 88: /*X*/ this.moveState.right = 1; break;
+                
+                case 32: /*Space*/ this.spaceCallback(); break;
+            }
+        } else {
+            switch ( event.keyCode ) {
 
-		}
+                case 87: /*W*/ this.moveState.up = 1; break;
+                case 38: /*Up*/ this.moveState.up = 1; break;
+                case 83: /*S*/ this.moveState.down = 1; break;
+                case 40: /*Down*/ this.moveState.down = 1; break;
+
+                case 65: /*A*/ this.moveState.left = 1; break;
+                case 37: /*Left*/ this.moveState.left = 1; break;
+                case 68: /*D*/ this.moveState.right = 1; break;
+                case 39: /*Right*/ this.moveState.right = 1; break;
+                
+                case 81: /*Q*/ this.moveState.rollLeft = 1; break;
+                case 90: /*Z*/ this.moveState.rollLeft = 1; break; 
+                case 69: /*E*/ this.moveState.rollRight = 1; break;
+                case 88: /*X*/ this.moveState.rollRight = 1; break;
+                
+                case 32: /*Space*/ this.spaceCallback(); break;
+            }
+        
+        }
         
         if (this.moveState.up || this.moveState.down || this.moveState.left || this.moveState.right)
         {
@@ -74,24 +97,41 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 
 	this.keyup = function( event ) {
     
-		switch( event.keyCode ) {
+        if (this.newControls) {
+            switch( event.keyCode ) {
+                case 87: /*W*/ this.moveState.up = 0; break;
+                case 38: /*Up*/ this.moveState.up = 0; break;
+                case 83: /*S*/ this.moveState.down = 0; break;
+                case 40: /*Down*/ this.moveState.down = 0; break;
 
-            case 87: /*W*/ this.moveState.up = 0; break;
-            case 38: /*Up*/ this.moveState.up = 0; break;
-			case 83: /*S*/ this.moveState.down = 0; break;
-            case 40: /*Down*/ this.moveState.down = 0; break;
+                case 65: /*A*/ this.moveState.left = 0; break;
+                case 37: /*Left*/ this.moveState.rollLeft = 0; break;
+                case 68: /*D*/ this.moveState.right = 0; break;
+                case 39: /*Right*/ this.moveState.rollRight = 0; break;
+                
+                case 81: /*Q*/ this.moveState.rollLeft = 0; break;
+                case 90: /*Z*/ this.moveState.left = 0; break;
+                case 69: /*E*/ this.moveState.rollRight = 0; break;
+                case 88: /*X*/ this.moveState.right = 0; break;
+            }
+        } else {
+            switch( event.keyCode ) {
+                case 87: /*W*/ this.moveState.up = 0; break;
+                case 38: /*Up*/ this.moveState.up = 0; break;
+                case 83: /*S*/ this.moveState.down = 0; break;
+                case 40: /*Down*/ this.moveState.down = 0; break;
 
-			case 65: /*A*/ this.moveState.left = 0; break;
-            case 37: /*Left*/ this.moveState.left = 0; break;
-			case 68: /*D*/ this.moveState.right = 0; break;
-            case 39: /*Right*/ this.moveState.right = 0; break;
-            
-            case 81: /*Q*/ this.moveState.rollLeft = 0; break;
-            case 90: /*Z*/ this.moveState.rollLeft = 0; break;
-			case 69: /*E*/ this.moveState.rollRight = 0; break;
-            case 88: /*X*/ this.moveState.rollRight = 0; break;
-
-		}
+                case 65: /*A*/ this.moveState.left = 0; break;
+                case 37: /*Left*/ this.moveState.left = 0; break;
+                case 68: /*D*/ this.moveState.right = 0; break;
+                case 39: /*Right*/ this.moveState.right = 0; break;
+                
+                case 81: /*Q*/ this.moveState.rollLeft = 0; break;
+                case 90: /*Z*/ this.moveState.rollLeft = 0; break;
+                case 69: /*E*/ this.moveState.rollRight = 0; break;
+                case 88: /*X*/ this.moveState.rollRight = 0; break;
+            }        
+        }
 
 		this.updateMovementVector();
         this.updateRotationVector();
