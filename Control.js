@@ -2,21 +2,22 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 
     this.object = object;
     
-    this.targetVector = object.position.clone();
-    
     this.spaceCallback = spaceCallback;
     this.moveCallback = moveCallback;
     this.rotateCallback = rotateCallback;
     
-    
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 	if ( domElement ) this.domElement.setAttribute( 'tabindex', -1 );
     
-    this.movementSpeed = 0.9;
-    this.rollSpeed = 0.000002;
+    this.velocity = new THREE.Vector3( 0, 0, 0 );
+    
+    this.acceleration = 0.0068;
+    this.maxSpeed = 0.84;
+    this.drag = 0.8;
+    
+    this.rollSpeed = 0.0018;
     
     this.newControls = true;
-    
     
     this.moveState = { 
         up: 0, 
@@ -78,7 +79,6 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
                 
                 case 32: /*Space*/ this.spaceCallback(); break;
             }
-        
         }
         
         if (this.moveState.up || this.moveState.down || this.moveState.left || this.moveState.right)
@@ -141,25 +141,27 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
     this.update = function( delta ) {
 
         // Movement
-		var moveMult = delta * this.movementSpeed;
+        this.moveVector.multiplyScalar(this.acceleration * delta);
+        this.velocity.add(this.moveVector);
+        this.moveVector.normalize();
         
-        this.object.translateOnAxis(this.moveVector, moveMult);
-        /*
-        this.moveVector.multiplyScalar(moveMult);
+        var speed = Math.min(this.velocity.length(), this.maxSpeed);    
         
-        this.targetVector.add(this.moveVector);
+        //console.log("Speed: " + speed);
+   
+        this.object.translateOnAxis(this.velocity.normalize(), speed * delta);
         
-        this.moveVector.divideScalar(moveMult);
+        this.object.position.x = Math.min(this.object.position.x, 350);
+        this.object.position.x = Math.max(this.object.position.x, -350);
+        this.object.position.y = Math.min(this.object.position.y, 800);
+        this.object.position.y = Math.max(this.object.position.y, 100);
+        
 
-        var diff = new THREE.Vector3(0,0,0);
         
-        diff.subVectors(this.targetVector, this.object.position);
+        this.velocity.multiplyScalar(speed);
         
-        if (diff.lengthSq() > 0.0000001)
-        {
-            this.object.translateOnAxis(diff, diff.length() * delta * 0.00001);
-        }
-        */
+        this.velocity.multiplyScalar(this.drag);
+        
         
         // Rotations
         var rotMult = delta * this.rollSpeed;
@@ -178,11 +180,6 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
         this.moveVector.z = 0;
 
 		//console.log( 'move:', [ this.moveVector.x, this.moveVector.y, this.moveVector.z ] );
-        
-        /*this.moveVector.normalize();
-        this.moveVector.applyQuaternion(this.object.quaternion.inverse());
-        this.object.quaternion.inverse();
-        */
 	};
     
     this.updateRotationVector = function() {
@@ -190,7 +187,6 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 		this.rotationVector.z = ( -this.moveState.rollRight + this.moveState.rollLeft );
 
 		//console.log( 'rotate:', [ this.rotationVector.x, this.rotationVector.y, this.rotationVector.z ] );
-
 	};
     
     function bind( scope, fn ) {

@@ -5,12 +5,10 @@ JuicyCamera = function (camera, target) {
     
     this.z = camera.position.z;
     
-    this.movementSpeed = 0.9;
+    this.movementSpeed = 0.006;
+    this.rotationSpeed = 0.006;
     
-    this.currentFacingVector = target.position.clone();
-    
-    this.update = function( delta ) {
-    
+    this.updateMovement = function( delta ) {
     
         // Move to
         var difference = new THREE.Vector3(0,0,0);
@@ -21,33 +19,18 @@ JuicyCamera = function (camera, target) {
 
         difference.subVectors(thing, this.camera.position);
         
-        difference.multiplyScalar(delta* 0.006);
+        difference.multiplyScalar(delta * this.movementSpeed);
         
-        camera.position.add(difference);
-        
-        
-        //Rotation
-        this.camera.quaternion.slerp(this.target.quaternion, THREE.Math.clamp(delta * 0.006, 0, 1));   
-        
-        // Look At
-        /*difference.subVectors(this.target.position, this.currentFacingVector);
-        difference.multiplyScalar(this.movementSpeed*delta);
-    
-        this.currentFacingVector.add(difference);
-    */
-        //camera.lookAt(this.currentFacingVector);
-        
-        
-        
-        //camera.lookAt(this.target.position);
-
-        
+        camera.position.add(difference);     
 	};
     
+    this.updateRotation = function( delta ) {
+        //Rotation
+        this.camera.quaternion.slerp(this.target.quaternion, THREE.Math.clamp(delta * this.rotationSpeed, 0, 1));           
+	};
+    
+    
     this.reset = function() {
-        this.currentFacingVector = target.position.clone();
-        camera.lookAt(this.currentFacingVector);
-        
         camera.position = target.position.clone();
         camera.position.z = this.z;
     }

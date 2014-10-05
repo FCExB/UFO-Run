@@ -140,7 +140,7 @@
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.left = '0px';
                 stats.domElement.style.top = '0px';
-                //document.body.appendChild(stats.domElement);
+                document.body.appendChild(stats.domElement);
                 
                 // camera
                 var camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
@@ -228,7 +228,7 @@
                         console.log("Moved"); 
                         juicyCamera.camera.add(rotateText);
                     }
-                    };
+                };
                         
                     
                 var onRotate = function() {
@@ -251,8 +251,6 @@
                 
                 //Controls
                 controls = new Control( ufo , onSpacePress, onMove, onRotate);
-                controls.movementSpeed = 0.5;
-                controls.rollSpeed = 0.0018;
                 
                 initScene();
                 
@@ -395,7 +393,10 @@
                 var timeDiff = time - lastTime;
                 lastTime = time;
                
-                //console.log(ufo.position);
+                timeDiff = Math.min(timeDiff, 33);
+               
+                //console.log("Delta: " + timeDiff);
+                
                 update(timeDiff);
                 stats.update();
                 renderer.render(scene, juicyCamera.camera);
@@ -409,12 +410,14 @@
                     return;
                 }
                 
-                juicyCamera.update(delta);
+                juicyCamera.updateMovement(delta);
             
                 if(dead) {
                     deathAnimation(delta);
                     return;
                 }
+                
+                juicyCamera.updateRotation(delta);
                     
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
@@ -432,19 +435,7 @@
                     }
                 }
                 
-                controls.update( delta);
-            
-                var axis = ufoOrigin.clone();
-                axis.sub(ufo.position);
-            
-                if(Math.abs(axis.x) > 350 || Math.abs(axis.y) > 350) {
-                
-                    ufo.worldToLocal(axis);
-                    axis.normalize();
-                    
-                    ufo.translateOnAxis(axis,controls.movementSpeed*delta);            
-                } 
-                
+                controls.update( delta); 
                 
                 if(ground.position.z > 2500) {
                     var temp = ground;
@@ -485,7 +476,7 @@
             }
             
             function deathAnimation(delta) {
-                ufo.position.y -= controls.movementSpeed * delta;
+                ufo.position.y -= 0.9 * delta;
                 
                 var q = new THREE.Quaternion( delta*controls.rollSpeed, 0, -delta*controls.rollSpeed, 1 );
                 q.normalize();
