@@ -51,15 +51,10 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
                 case 83: /*S*/ this.moveState.down = 1; break;
                 case 40: /*Down*/ this.moveState.down = 1; break;
 
-                case 65: /*A*/ this.moveState.left = 1; break;
+                case 65: /*A*/ this.moveState.rollLeft = 1; break;
                 case 37: /*Left*/ this.moveState.rollLeft = 1; break;
-                case 68: /*D*/ this.moveState.right = 1; break;
+                case 68: /*D*/ this.moveState.rollRight  = 1; break;
                 case 39: /*Right*/ this.moveState.rollRight = 1; break;
-                
-                case 81: /*Q*/ this.moveState.rollLeft = 1; break;
-                case 90: /*Z*/ this.moveState.left = 1; break;
-                case 69: /*E*/ this.moveState.rollRight = 1; break;
-                case 88: /*X*/ this.moveState.right = 1; break;
                 
                 case 32: /*Space*/ this.spaceCallback(); break;
             }
@@ -108,15 +103,10 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
                 case 83: /*S*/ this.moveState.down = 0; break;
                 case 40: /*Down*/ this.moveState.down = 0; break;
 
-                case 65: /*A*/ this.moveState.left = 0; break;
+                case 65: /*A*/ this.moveState.rollLeft = 0; break;
                 case 37: /*Left*/ this.moveState.rollLeft = 0; break;
-                case 68: /*D*/ this.moveState.right = 0; break;
+                case 68: /*D*/ this.moveState.rollRight = 0; break;
                 case 39: /*Right*/ this.moveState.rollRight = 0; break;
-                
-                case 81: /*Q*/ this.moveState.rollLeft = 0; break;
-                case 90: /*Z*/ this.moveState.left = 0; break;
-                case 69: /*E*/ this.moveState.rollRight = 0; break;
-                case 88: /*X*/ this.moveState.right = 0; break;
             }
         } else {
             switch( event.keyCode ) {
@@ -151,7 +141,7 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
         
         var speed = Math.min(this.velocity.length(), this.maxSpeed);    
         
-        console.log("Speed: " + speed);
+        //console.log("Speed: " + speed);
    
         this.object.translateOnAxis(this.velocity.normalize(), speed * delta);
         

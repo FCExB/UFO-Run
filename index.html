@@ -167,18 +167,18 @@
                 
                 juicyCamera = new JuicyCamera(camera, ufo);
                 
-                var moveGeo = new THREE.TextGeometry("Arrow keys to Move", titleTextParams);
+                var moveGeo = new THREE.TextGeometry("Up/Down to Move", titleTextParams);
                 
                 moveText = new THREE.Mesh(moveGeo, material);
                 moveText.position.z = -100;
                 moveText.position.x = -32;
                 moveText.position.y = 25;
                 
-                var rotateGeo = new THREE.TextGeometry("Z/X to Rotate", titleTextParams);
+                var rotateGeo = new THREE.TextGeometry("Left/Right to Rotate", titleTextParams);
                 
                 rotateText = new THREE.Mesh(rotateGeo, material);
                 rotateText.position.z = -100;
-                rotateText.position.x = -38;
+                rotateText.position.x = -35;
                 rotateText.position.y = -25;
               
                 var onSpacePress = function() {
@@ -393,7 +393,7 @@
                 var timeDiff = time - lastTime;
                 lastTime = time;
                
-                timeDiff = Math.min(timeDiff, 33);
+                timeDiff = Math.min(timeDiff, 70);
                
                 //console.log("Delta: " + timeDiff);
                 
