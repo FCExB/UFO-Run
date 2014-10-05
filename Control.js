@@ -11,11 +11,15 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
     
     this.velocity = new THREE.Vector3( 0, 0, 0 );
     
-    this.acceleration = 0.0068;
-    this.maxSpeed = 0.84;
-    this.drag = 0.8;
+    this.acceleration = 0.007;
+    this.maxSpeed = 1;
+    this.drag = 0.81;
     
-    this.rollSpeed = 0.0018;
+    this.rollVelocity = new THREE.Vector3( 0, 0, 0 );
+    
+    this.rollAcceleration = 0.00001948;
+    this.rollMaxSpeed = 0.0029;
+    this.rollDrag = 0.80;
     
     this.newControls = true;
     
@@ -147,7 +151,7 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
         
         var speed = Math.min(this.velocity.length(), this.maxSpeed);    
         
-        //console.log("Speed: " + speed);
+        console.log("Speed: " + speed);
    
         this.object.translateOnAxis(this.velocity.normalize(), speed * delta);
         
@@ -155,7 +159,6 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
         this.object.position.x = Math.max(this.object.position.x, -350);
         this.object.position.y = Math.min(this.object.position.y, 800);
         this.object.position.y = Math.max(this.object.position.y, 100);
-        
 
         
         this.velocity.multiplyScalar(speed);
@@ -164,9 +167,19 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
         
         
         // Rotations
-        var rotMult = delta * this.rollSpeed;
         
-        var q = new THREE.Quaternion( this.rotationVector.x * rotMult, this.rotationVector.y * rotMult, this.rotationVector.z * rotMult, 1 );
+        this.rotationVector.multiplyScalar(this.rollAcceleration * delta);
+        
+        this.rollVelocity.add(this.rotationVector);
+        this.rotationVector.divideScalar(this.rollAcceleration * delta);
+        
+        this.rollVelocity.setLength(Math.min(this.rollVelocity.length(), this.rollMaxSpeed));
+        
+        this.rollVelocity.multiplyScalar(this.rollDrag);
+        
+        //console.log( 'rotate:', [ this.rollVelocity.x, this.rollVelocity.y, this.rollVelocity.z ] );
+        
+        var q = new THREE.Quaternion( this.rollVelocity.x * delta, this.rollVelocity.y * delta, this.rollVelocity.z * delta, 1 );
 		this.object.quaternion.multiply( q );
 
 		// expose the rotation vector for convenience
