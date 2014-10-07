@@ -58,8 +58,10 @@
             var controls;
             var ufo, ground, nextGround;
             
-            var ob;
-            
+            var ob, ob2;
+            var obStartZ = -9000;
+						var obEndZ = 600;
+ 
             var dead = false;
             var menu = true;
             
@@ -143,12 +145,12 @@
                 document.body.appendChild(stats.domElement);
                 
                 // camera
-                var camera = new THREE.PerspectiveCamera(45, width / height, 1, 5000);
+                var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
                 camera.position.y = 600;
                 camera.position.z = 850;
                 scene.add(camera);
                 
-                var scoreTextGeo = new THREE.TextGeometry( Math.floor(score), scoreTextParams);
+                var scoreTextGeo = new THREE.TextGeometry(Math.floor(score), scoreTextParams);
                 
                 scoreText = new THREE.Mesh(scoreTextGeo, material);
                 
@@ -198,9 +200,13 @@
                                                 }
                                                 else 
                                                 {            
-                                                    ob = generateOb();
-                                                    scene.add(ob);
-                                                    ob.position.set(0,400,-4700);
+																										ob = generateOb();
+																										scene.add(ob);
+																										ob.position.set(0, 500, (obStartZ - obEndZ)/2);
+
+																										ob2 = generateOb();
+																										scene.add(ob2);
+																										ob2.position.set(0, 500, obStartZ);
                                                 }
                                                 
                                                 speed = startSpeed;
@@ -257,10 +263,12 @@
                 //obsticle
                 
                 ob = generateOb();
-                
                 scene.add(ob);
-                
-                ob.position.set(0,500,-4700);
+                ob.position.set(0, 500, (obStartZ - obEndZ)/2);
+
+								ob2 = generateOb();
+								scene.add(ob2);
+								ob2.position.set(0, 500, obStartZ);
                 
                 // menu
                 
@@ -326,7 +334,12 @@
                 scene.fog.color.copy( uniforms.bottomColor.value );
 
                 var skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
-                var skyMat = new THREE.ShaderMaterial( { vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide } );
+                var skyMat = new THREE.ShaderMaterial({ 
+										vertexShader: vertexShader, 
+										fragmentShader: fragmentShader, 
+										uniforms: uniforms, 
+										side: THREE.BackSide } 
+								);
 
                 var sky = new THREE.Mesh( skyGeo, skyMat );
                 scene.add(sky);  
@@ -409,7 +422,7 @@
                 if(menu) {
                     return;
                 }
-                
+      
                 juicyCamera.updateMovement(delta);
             
                 if(dead) {
@@ -418,25 +431,11 @@
                 }
                 
                 juicyCamera.updateRotation(delta);
-                    
-                for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
-                {          
-                    var vertex = ufo.geometry.vertices[vertexIndex].clone();
-                    var normVertex = vertex.clone();
-                    normVertex.transformDirection(ufo.matrix);
-                    
-                    var raycaster = new THREE.Raycaster(ufo.position, normVertex, 0, vertex.length());
+                
+                controls.update(delta); 
+								
+								detectCollisions();                
 
-                    var collisions = raycaster.intersectObject(ob);
-                    if ( collisions.length > 0 && ob.position.length() < 3499) 
-                    {
-                        dead = true;
-                        console.log("HIT");
-                    }
-                }
-                
-                controls.update( delta); 
-                
                 if(ground.position.z > 2500) {
                     var temp = ground;
                     ground = nextGround;
@@ -444,11 +443,13 @@
                     nextGround.position.z = -5500;
                 }
                 
-                if(ob.position.z > 800) {
+                if(ob.position.z > obEndZ) {
                     scene.remove(ob);
-                    ob = generateOb();
-                    ob.position.set(0,500,-4700);
-                    scene.add(ob);
+                    ob = ob2;
+										var thing = generateOb();
+										ob2 = thing;
+                    ob2.position.set(0,500,obStartZ);
+                    scene.add(ob2);
                 }
                 
                 ground.position.z += delta * speed;
@@ -457,6 +458,7 @@
                 if (rotated)
                 {
                     ob.position.z += delta * speed;
+										ob2.position.z += delta * speed;
                     score += delta / 100;
                     speed += acceleration * delta;
                 }
@@ -474,6 +476,24 @@
                 
                 juicyCamera.camera.add(scoreText);
             }
+
+						function detectCollisions() {	
+                for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
+                {          
+                    var vertex = ufo.geometry.vertices[vertexIndex].clone();
+                    var normVertex = vertex.clone();
+                    normVertex.transformDirection(ufo.matrix);
+                    
+                    var raycaster = new THREE.Raycaster(ufo.position, normVertex, 0, vertex.length());
+
+                    var collisions = raycaster.intersectObject(ob);
+                    if ( collisions.length > 0 && ob.position.length() < 3499) 
+                    {
+                        dead = true;
+                        console.log("HIT");
+                    }
+                }
+						}
             
             function deathAnimation(delta) {
                 ufo.position.y -= 0.9 * delta;
