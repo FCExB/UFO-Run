@@ -1,4 +1,6 @@
-spawncamping-octo-adventure
+UFO Run
 ===========================
 
-Three stuff.
+A javascript based ufo infinite runner game.
+
+Can be played at fcexb.com/games/ufo
