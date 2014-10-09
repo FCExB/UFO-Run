@@ -5,7 +5,7 @@
 	<body style="margin: 0px;">
 		<script src="libs/three.min.js"></script>
         <script src="libs/NG.min.js"></script>
-        <script src="libs/stats.min.js"></script>
+        <!--script src="libs/stats.min.js"></script-->
         <script src="libs/helvetiker_regular.typeface.js"></script>
         <script src="libs/helvetiker_bold.typeface.js"></script>
         
@@ -54,7 +54,7 @@
             var acceleration = 0.000035;
         
             var scene, renderer, juicyCamera;
-            var stats;
+            //var stats;
             var controls;
             var ufo, ground, nextGround;
             
@@ -138,11 +138,11 @@
                 renderer.shadowMapCullFace = THREE.CullFaceBack;
                 
                 // stats
-                stats = new Stats();
+                /*stats = new Stats();
                 stats.domElement.style.position = 'absolute';
                 stats.domElement.style.left = '0px';
                 stats.domElement.style.top = '0px';
-                document.body.appendChild(stats.domElement);
+                document.body.appendChild(stats.domElement);*/
                 
                 // camera
                 var camera = new THREE.PerspectiveCamera(45, width / height, 1, 7000);
@@ -420,7 +420,7 @@
                 //console.log("Delta: " + timeDiff);
                 
                 update(timeDiff);
-                stats.update();
+                //stats.update();
                 renderer.render(scene, juicyCamera.camera);
                 
                 requestAnimationFrame(run);
