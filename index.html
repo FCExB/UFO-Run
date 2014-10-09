@@ -59,8 +59,8 @@
             var ufo, ground, nextGround;
             
             var ob, ob2;
-            var obStartZ = -9000;
-						var obEndZ = 600;
+            var obStartZ = -3600;
+            var obEndZ = 700;
  
             var dead = false;
             var menu = true;
@@ -124,7 +124,7 @@
             
                 // scene
                 scene = new THREE.Scene();
-                scene.fog = new THREE.Fog( 0xffffff, 1, 5400 );
+                scene.fog = new THREE.Fog( 0xffffff, 1, 5600 );
                 scene.fog.color.setHSL( 0.6, 0, 1 );
              
                 // renderer
@@ -145,7 +145,7 @@
                 document.body.appendChild(stats.domElement);
                 
                 // camera
-                var camera = new THREE.PerspectiveCamera(45, width / height, 1, 10000);
+                var camera = new THREE.PerspectiveCamera(45, width / height, 1, 7000);
                 camera.position.y = 600;
                 camera.position.z = 850;
                 scene.add(camera);
@@ -200,13 +200,15 @@
                                                 }
                                                 else 
                                                 {            
-																										ob = generateOb();
-																										scene.add(ob);
-																										ob.position.set(0, 500, (obStartZ - obEndZ)/2);
-
-																										ob2 = generateOb();
-																										scene.add(ob2);
-																										ob2.position.set(0, 500, obStartZ);
+                                                    scene.remove(ob);
+                                                    ob = generateOb();
+                                                    scene.add(ob);
+                                                    ob.position.set(0, 500, obStartZ);
+                                                    
+                                                    scene.remove(ob2);
+                                                    ob2 = generateOb();
+                                                    scene.add(ob2);
+                                                    ob2.position.set(0, 500, obStartZ + (obStartZ - obEndZ));
                                                 }
                                                 
                                                 speed = startSpeed;
@@ -248,7 +250,12 @@
                     {
                         ob = generateOb();
                         scene.add(ob);
-                        ob.position.set(0,400,-4700);
+                        ob.position.set(0, 500, obStartZ);
+
+                        ob2 = generateOb();
+                        scene.add(ob2);
+                        ob2.position.set(0, 500, obStartZ + (obStartZ - obEndZ));
+                        
                         rotated = true;
                         juicyCamera.camera.remove(rotateText);
                     }
@@ -261,14 +268,13 @@
                 initScene();
                 
                 //obsticle
-                
                 ob = generateOb();
                 scene.add(ob);
-                ob.position.set(0, 500, (obStartZ - obEndZ)/2);
+                ob.position.set(0, 500, obStartZ);
 
-								ob2 = generateOb();
-								scene.add(ob2);
-								ob2.position.set(0, 500, obStartZ);
+                ob2 = generateOb();
+                scene.add(ob2);
+                ob2.position.set(0, 500, obStartZ + (obStartZ - obEndZ));
                 
                 // menu
                 
@@ -346,12 +352,15 @@
             }
             
             function initGrounds() {
+                var wSegments = 45;
+                var hSegments = 45;
+                
                 //GROUND
-                var groundGeo = new THREE.PlaneGeometry( 6000, 5000, 50, 50);
+                var groundGeo = new THREE.PlaneGeometry( 6000, 5000, wSegments, hSegments);
                 
                 var index = 0;
-                for(var i = 0; i < 50; i++) {
-                    for(var j = 0; j < 50; j++) {
+                for(var i = 0; i < wSegments; i++) {
+                    for(var j = 0; j < hSegments; j++) {
                         groundGeo.vertices[index].z = (Math.random()-0.5) * 100;
                         index++;
                     }
@@ -434,7 +443,7 @@
                 
                 controls.update(delta); 
 								
-								detectCollisions();                
+                detectCollisions();                
 
                 if(ground.position.z > 2500) {
                     var temp = ground;
@@ -446,10 +455,11 @@
                 if(ob.position.z > obEndZ) {
                     scene.remove(ob);
                     ob = ob2;
-										var thing = generateOb();
-										ob2 = thing;
-                    ob2.position.set(0,500,obStartZ);
+                    ob2 = generateOb();
+                    ob2.position.set(0, 500, obStartZ + (obStartZ - obEndZ));
                     scene.add(ob2);
+                    
+                    score++;
                 }
                 
                 ground.position.z += delta * speed;
@@ -458,18 +468,17 @@
                 if (rotated)
                 {
                     ob.position.z += delta * speed;
-										ob2.position.z += delta * speed;
-                    score += delta / 100;
+                    ob2.position.z += delta * speed;
                     speed += acceleration * delta;
                 }
                 
+                juicyCamera.camera.remove(scoreText);
+                
                 var newTextGeo = new THREE.TextGeometry( Math.floor(score), scoreTextParams);
-                ob.remove(scoreText);
                 
                 var pos = scoreText.position;
                 
                 juicyCamera.camera.remove(scoreText);
-                scoreText.geometry.dispose();
                 
                 scoreText = new THREE.Mesh( newTextGeo, ufoMaterial);
                 scoreText.position = pos;
@@ -477,7 +486,7 @@
                 juicyCamera.camera.add(scoreText);
             }
 
-						function detectCollisions() {	
+            function detectCollisions() {	
                 for (var vertexIndex = 0; vertexIndex < ufo.geometry.vertices.length; vertexIndex++)
                 {          
                     var vertex = ufo.geometry.vertices[vertexIndex].clone();
@@ -487,13 +496,13 @@
                     var raycaster = new THREE.Raycaster(ufo.position, normVertex, 0, vertex.length());
 
                     var collisions = raycaster.intersectObject(ob);
-                    if ( collisions.length > 0 && ob.position.length() < 3499) 
+                    if ( collisions.length > 0 && ob.position.length() < 3499)
                     {
                         dead = true;
                         console.log("HIT");
                     }
                 }
-						}
+            }
             
             function deathAnimation(delta) {
                 ufo.position.y -= 0.9 * delta;
@@ -512,13 +521,13 @@
                     deadScoreText = new THREE.Mesh(scoreGeo, material);
                 
                     deadScoreText.position.z = -100;
-                    deadScoreText.position.x = -65;
+                    deadScoreText.position.x = -57;
                     deadScoreText.position.y = -15;
                     
                     var highscoreGeo = new THREE.TextGeometry( "Highscore: " + Math.floor(highscore), titleTextParams);
                     
                     var highscoreText = new THREE.Mesh(highscoreGeo, material);
-                    highscoreText.position.x = 84;
+                    highscoreText.position.x = 80;
                     
                     deadScoreText.add(highscoreText);
                         
@@ -541,7 +550,6 @@
                     cubeMesh.position.y = (Math.floor(Math.random() * 5) - 2)*160;
                     
                     THREE.GeometryUtils.merge(combined, cubeMesh);
-                    
                 }
                 
                 var result = new THREE.Mesh(combined, material);
