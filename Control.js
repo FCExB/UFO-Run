@@ -1,8 +1,9 @@
-Control = function (object, spaceCallback, moveCallback, rotateCallback, domElement) {
+Control = function (object, spaceCallback, tCallback, moveCallback, rotateCallback, domElement) {
 
     this.object = object;
     
     this.spaceCallback = spaceCallback;
+    this.tCallback = tCallback;
     this.moveCallback = moveCallback;
     this.rotateCallback = rotateCallback;
     
@@ -57,6 +58,8 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
                 case 39: /*Right*/ this.moveState.rollRight = 1; break;
                 
                 case 32: /*Space*/ this.spaceCallback(); break;
+                
+                case 84: /*T*/ this.tCallback(); break;
             }
         } else {
             switch ( event.keyCode ) {

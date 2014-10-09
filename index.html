@@ -118,6 +118,8 @@
             
             var onKongregate = false;
             var kongregate;
+            
+            var twitterLogo;
            
             init();
             run();
@@ -136,6 +138,16 @@
                       kongregate = kongregateAPI.getAPI();
                       onKongregate = true;
                     });
+                    
+                twitterLogo = document.createElement( 'div' );
+                twitterLogo.style.position = 'absolute';
+                twitterLogo.style.margin = '15px';
+                
+                var h = 30;
+                var w = 1.23 * h;
+                
+				twitterLogo.innerHTML = '<img src="http://g.twimg.com/Twitter_logo_white.png" height="' + h + '" width="' + w + '">';
+                document.body.appendChild(twitterLogo);
             
                 // scene
                 scene = new THREE.Scene();
@@ -201,6 +213,7 @@
                 var onSpacePress = function() {
                                             if(menu) {
                                                 score = 0;
+                                                twitterLogo.style.visibility = 'hidden';
                                                 
                                                 ufo.position = ufoOrigin.clone();
                                                 var lookat = ufoOrigin.clone();
@@ -239,6 +252,13 @@
                                                 juicyCamera.reset();
                                             }
                                         };
+                                        
+                var onTPress = function() {
+                    if (menu)
+                    {
+                        window.open("http://twitter.com/fcexb");
+                    }
+                };
                                         
                 var onMove = function() { 
                     if (menu)
@@ -280,7 +300,7 @@
                     ;};
                 
                 //Controls
-                controls = new Control( ufo , onSpacePress, onMove, onRotate);
+                controls = new Control( ufo , onSpacePress, onTPress, onMove, onRotate);
                 
                 initScene();
                 
@@ -312,6 +332,16 @@
                 pressSpaaceTitle.position.y = -47;
                 
                 title.add(pressSpaaceTitle);
+                
+                titleGeo = new THREE.TextGeometry( "Press T", titleTextParams);
+                
+                var pressTwitterTitle = new THREE.Mesh(titleGeo, material);
+                
+                pressTwitterTitle.position.z = -100;
+                pressTwitterTitle.position.x = -78;
+                pressTwitterTitle.position.y = 44;
+                
+                title.add(pressTwitterTitle);
                          
                 camera.add(title);        
             }
@@ -547,6 +577,7 @@
                     highscoreText.position.x = 80;
                     
                     deadScoreText.add(highscoreText);
+                    twitterLogo.style.visibility = 'visible';
                         
                     juicyCamera.camera.add(deadScoreText);
                     
