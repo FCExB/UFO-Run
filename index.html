@@ -4,10 +4,14 @@
 	</head>
 	<body style="margin: 0px;">
 		<script src="libs/three.min.js"></script>
-        <script src="libs/NG.min.js"></script>
+        
         <!--script src="libs/stats.min.js"></script-->
+        
         <script src="libs/helvetiker_regular.typeface.js"></script>
         <script src="libs/helvetiker_bold.typeface.js"></script>
+        
+        <script src="libs/NG.min.js"></script>
+        <script src='http://www.kongregate.com/javascripts/kongregate_api.js'></script>
         
         <script src="Control.js"></script>
         <script src="JuicyCamera.js"></script>
@@ -111,6 +115,9 @@
             
             var title;
             var scoresText;
+            
+            var onKongregate = false;
+            var kongregate;
            
             init();
             run();
@@ -118,9 +125,18 @@
             function init() {
                 dead = false;
             
+                // Connect to Newgrounds API
                 var appId = "38567:dcsyAdEE";
                 var encryptionKey = "qWe7dlLZL2kviQqrMwPHaaHIJqBQbmrO";
                 NG.connect(appId, encryptionKey);
+                
+                // Load the kongregate API
+                var kongregate;
+                kongregateAPI.loadAPI(
+                    function(){
+                      kongregate = kongregateAPI.getAPI();
+                      onKongregate = true;
+                    });
             
                 // scene
                 scene = new THREE.Scene();
@@ -535,6 +551,11 @@
                     
                     juicyCamera.camera.add(title);
                     NG.postScore("Highscores", Math.floor(score));
+                    
+                    if (onKongregate)
+                    {
+                        kongregate.stats.submit("Highscores", Math.floor(score));
+                    }
                 }
             }
             
