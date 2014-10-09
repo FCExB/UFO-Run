@@ -192,6 +192,11 @@ Control = function (object, spaceCallback, moveCallback, rotateCallback, domElem
 		//console.log( 'rotate:', [ this.rotationVector.x, this.rotationVector.y, this.rotationVector.z ] );
 	};
     
+    this.reset = function() {
+        this.velocity = new THREE.Vector3( 0, 0, 0 );
+        this.rollVelocity = new THREE.Vector3( 0, 0, 0 );
+    };
+    
     function bind( scope, fn ) {
 		return function () {
 			fn.apply( scope, arguments );
