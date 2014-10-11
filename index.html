@@ -128,8 +128,8 @@
                 dead = false;
             
                 // Connect to Newgrounds API
-                var appId = "38567:dcsyAdEE";
-                var encryptionKey = "qWe7dlLZL2kviQqrMwPHaaHIJqBQbmrO";
+                var appId = "38711:9CfuGxiv";
+                var encryptionKey = "J0tRs5JmUmzeGRqXPUxgEe7A8x2VNolG";
                 NG.connect(appId, encryptionKey);
                 
                 // Load the kongregate API
@@ -582,7 +582,7 @@
                     juicyCamera.camera.add(deadScoreText);
                     
                     juicyCamera.camera.add(title);
-                    NG.postScore("Stages Avoided", Math.floor(score));
+                    NG.postScore("Highscores", Math.floor(score));
                     
                     if (onKongregate)
                     {
