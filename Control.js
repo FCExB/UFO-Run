@@ -24,6 +24,8 @@ Control = function (object, spaceCallback, tCallback, moveCallback, rotateCallba
     
     this.newControls = true;
     
+    this.yInverted = false;
+    
     this.moveState = { 
         up: 0, 
         down: 0, 
@@ -45,21 +47,45 @@ Control = function (object, spaceCallback, tCallback, moveCallback, rotateCallba
 		event.preventDefault();
 
         if (this.newControls) {
-            switch ( event.keyCode ) {
+            if (this.yInverted) {
+                switch ( event.keyCode ) {
 
-                case 87: /*W*/ this.moveState.up = 1; break;
-                case 38: /*Up*/ this.moveState.up = 1; break;
-                case 83: /*S*/ this.moveState.down = 1; break;
-                case 40: /*Down*/ this.moveState.down = 1; break;
+                    case 87: /*W*/ this.moveState.down = 1; break;
+                    case 38: /*Up*/ this.moveState.down = 1; break;
+                    case 83: /*S*/ this.moveState.up = 1; break;
+                    case 40: /*Down*/ this.moveState.up = 1; break;
 
-                case 65: /*A*/ this.moveState.rollLeft = 1; break;
-                case 37: /*Left*/ this.moveState.rollLeft = 1; break;
-                case 68: /*D*/ this.moveState.rollRight  = 1; break;
-                case 39: /*Right*/ this.moveState.rollRight = 1; break;
-                
-                case 32: /*Space*/ this.spaceCallback(); break;
-                
-                case 84: /*T*/ this.tCallback(); break;
+                    case 65: /*A*/ this.moveState.rollLeft = 1; break;
+                    case 37: /*Left*/ this.moveState.rollLeft = 1; break;
+                    case 68: /*D*/ this.moveState.rollRight  = 1; break;
+                    case 39: /*Right*/ this.moveState.rollRight = 1; break;
+                    
+                    case 32: /*Space*/ this.spaceCallback(); break;
+                    
+                    case 84: /*T*/ this.tCallback(); break;
+                    
+                    case 89: /*Y*/ this.yInverted = !this.yInverted; break;
+                }
+            } else {
+                 switch ( event.keyCode ) {
+
+                    case 87: /*W*/ this.moveState.up = 1; break;
+                    case 38: /*Up*/ this.moveState.up = 1; break;
+                    case 83: /*S*/ this.moveState.down = 1; break;
+                    case 40: /*Down*/ this.moveState.down = 1; break;
+
+                    case 65: /*A*/ this.moveState.rollLeft = 1; break;
+                    case 37: /*Left*/ this.moveState.rollLeft = 1; break;
+                    case 68: /*D*/ this.moveState.rollRight  = 1; break;
+                    case 39: /*Right*/ this.moveState.rollRight = 1; break;
+                    
+                    case 32: /*Space*/ this.spaceCallback(); break;
+                    
+                    case 84: /*T*/ this.tCallback(); break;
+                    
+                    case 89: /*Y*/ this.yInverted = !this.yInverted; break;
+                }
+           
             }
         } else {
             switch ( event.keyCode ) {
@@ -100,16 +126,30 @@ Control = function (object, spaceCallback, tCallback, moveCallback, rotateCallba
 	this.keyup = function( event ) {
     
         if (this.newControls) {
-            switch( event.keyCode ) {
-                case 87: /*W*/ this.moveState.up = 0; break;
-                case 38: /*Up*/ this.moveState.up = 0; break;
-                case 83: /*S*/ this.moveState.down = 0; break;
-                case 40: /*Down*/ this.moveState.down = 0; break;
+            if (this.yInverted) {
+                 switch( event.keyCode ) {
+                    case 87: /*W*/ this.moveState.down = 0; break;
+                    case 38: /*Up*/ this.moveState.down = 0; break;
+                    case 83: /*S*/ this.moveState.up = 0; break;
+                    case 40: /*Down*/ this.moveState.up = 0; break;
 
-                case 65: /*A*/ this.moveState.rollLeft = 0; break;
-                case 37: /*Left*/ this.moveState.rollLeft = 0; break;
-                case 68: /*D*/ this.moveState.rollRight = 0; break;
-                case 39: /*Right*/ this.moveState.rollRight = 0; break;
+                    case 65: /*A*/ this.moveState.rollLeft = 0; break;
+                    case 37: /*Left*/ this.moveState.rollLeft = 0; break;
+                    case 68: /*D*/ this.moveState.rollRight = 0; break;
+                    case 39: /*Right*/ this.moveState.rollRight = 0; break;
+                }
+            } else {
+                switch( event.keyCode ) {
+                    case 87: /*W*/ this.moveState.up = 0; break;
+                    case 38: /*Up*/ this.moveState.up = 0; break;
+                    case 83: /*S*/ this.moveState.down = 0; break;
+                    case 40: /*Down*/ this.moveState.down = 0; break;
+
+                    case 65: /*A*/ this.moveState.rollLeft = 0; break;
+                    case 37: /*Left*/ this.moveState.rollLeft = 0; break;
+                    case 68: /*D*/ this.moveState.rollRight = 0; break;
+                    case 39: /*Right*/ this.moveState.rollRight = 0; break;
+                }
             }
         } else {
             switch( event.keyCode ) {
@@ -129,6 +169,7 @@ Control = function (object, spaceCallback, tCallback, moveCallback, rotateCallba
                 case 88: /*X*/ this.moveState.rollRight = 0; break;
             }        
         }
+       
 
 		this.updateMovementVector();
         this.updateRotationVector();
